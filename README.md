@@ -1,5 +1,7 @@
 # LearnStack LMS Backend
 
+[![Backend CI](https://github.com/yasserhegazy/Learn-Stack-Backend/actions/workflows/ci.yml/badge.svg)](https://github.com/yasserhegazy/Learn-Stack-Backend/actions/workflows/ci.yml)
+
 > A professional, modular, and scalable multi-tenant Learning Management System (LMS) SaaS platform built with Django REST Framework.
 
 ## 📋 Overview

@@ -1,0 +1,76 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_DATABASE: lms_test_db
+          MYSQL_USER: lms_user
+          MYSQL_PASSWORD: lms_password
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run linting - Black
+      run: |
+        black --check .
+    
+    - name: Run linting - isort
+      run: |
+        isort --check-only .
+    
+    - name: Run linting - flake8
+      run: |
+        flake8 . --max-line-length=100 --exclude=venv,env,migrations,__pycache__
+    
+    - name: Run tests with pytest
+      env:
+        DJANGO_SETTINGS_MODULE: lms_project.settings
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_NAME: lms_test_db
+        DB_USER: lms_user
+        DB_PASSWORD: lms_password
+        CELERY_BROKER_URL: redis://localhost:6379/0
+        CELERY_RESULT_BACKEND: redis://localhost:6379/0
+        DEBUG: True
+        SECRET_KEY: test-secret-key-for-ci-only
+      run: |
+        pytest --cov=modules --cov-report=xml --cov-report=term-missing
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false

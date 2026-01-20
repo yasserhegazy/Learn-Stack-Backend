@@ -1,0 +1,23 @@
+[flake8]
+max-line-length = 100
+exclude =
+    venv,
+    env,
+    .venv,
+    migrations,
+    __pycache__,
+    .git,
+    .github,
+    *.egg-info,
+    build,
+    dist
+# Ignore unused imports in placeholder module files
+per-file-ignores =
+    modules/*/admin.py:F401
+    modules/*/models.py:F401
+    modules/*/views.py:F401
+    modules/*/serializers.py:F401
+    modules/*/permissions.py:F401
+    modules/*/factories.py:F401
+    modules/*/tests/*.py:F401
+    __init__.py:F401

@@ -48,7 +48,7 @@ jobs:
     
     - name: Run linting - isort
       run: |
-        isort --check-only .
+        isort --check-only --profile black .
     
     - name: Run linting - flake8
       run: |

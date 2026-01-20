@@ -3,7 +3,8 @@ URL Configuration for User & Role Management Module
 
 Module-specific API routes.
 """
-from django.urls import path, include
+
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 # Router and URL patterns will be defined here following TDD approach
@@ -11,5 +12,5 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

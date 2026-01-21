@@ -141,14 +141,14 @@ class UserListSerializer(serializers.ModelSerializer):
         ]
 
     def get_roles(self, obj):
-        return [ur.role.get_name_display() for ur in obj.user_roles.all()]
+        return [ur.role.name for ur in obj.user_roles.all()]
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Public user profile serializer (limited fields)."""
 
-    tenant_name = serializers.CharField(source="tenant.name", read_only=True)
-    roles = serializers.SerializerMethodField()
+    tenant = TenantSerializer(read_only=True)
+    user_roles = UserRoleSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
@@ -159,13 +159,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "last_name",
             "avatar",
             "bio",
-            "tenant_name",
-            "roles",
+            "tenant",
+            "user_roles",
             "date_joined",
         ]
-
-    def get_roles(self, obj):
-        return [ur.role.get_name_display() for ur in obj.user_roles.all()]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -230,6 +227,15 @@ class UserSerializer(serializers.ModelSerializer):
                     "A user with this username already exists in your organization"
                 )
         return value
+
+    def validate(self, attrs):
+        request = self.context.get("request")
+        if self.instance and request and hasattr(request, "tenant"):
+            if self.instance.tenant_id != request.tenant.id:
+                raise serializers.ValidationError(
+                    "User must belong to the current tenant"
+                )
+        return attrs
 
 
 class UserCreateSerializer(serializers.ModelSerializer):

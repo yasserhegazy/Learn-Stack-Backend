@@ -78,3 +78,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+# Scripts
+check-ci.sh
+check-ci.ps1

@@ -8,8 +8,15 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+# Load environment variables from .env file
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load .env file
+env_path = BASE_DIR / ".env"
+load_dotenv(dotenv_path=env_path)
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -50,8 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # Custom tenant middleware (to be implemented)
-    # 'lms_project.middleware.TenantMiddleware',
+    "lms_project.middleware.TenantMiddleware",
 ]
 
 ROOT_URLCONF = "lms_project.urls"
@@ -253,5 +259,4 @@ LOGGING = {
     },
 }
 
-# Custom User Model (to be implemented in modules.users)
-# AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = "users.User"

@@ -52,9 +52,7 @@ class RoleFactory(DjangoModelFactory):
 
     tenant = factory.SubFactory(TenantFactory)
     name = Role.STUDENT
-    description = factory.LazyAttribute(
-        lambda obj: f"{obj.get_name_display()} role description"
-    )
+    description = factory.LazyAttribute(lambda obj: f"{obj.name.title()} role")
     permissions = factory.List([])
     is_system_role = True
 

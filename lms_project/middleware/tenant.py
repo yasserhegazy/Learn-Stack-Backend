@@ -37,8 +37,10 @@ class TenantMiddleware(MiddlewareMixin):
         return any(request.path.startswith(path) for path in self.EXCLUDED_PATHS)
 
     def _extract_tenant_from_request(self, request):
-        tenant = self._get_tenant_from_jwt(request) or self._get_tenant_from_subdomain(
-            request
+        tenant = (
+            self._get_tenant_from_jwt(request)
+            or self._get_tenant_from_header(request)
+            or self._get_tenant_from_subdomain(request)
         )
         return tenant
 
@@ -69,6 +71,14 @@ class TenantMiddleware(MiddlewareMixin):
     def _get_tenant_from_subdomain(self, request):
         host = request.get_host().split(":")[0]
         subdomain = self._extract_subdomain(host)
+
+        if subdomain:
+            return Tenant.objects.filter(subdomain=subdomain, is_active=True).first()
+
+        return None
+
+    def _get_tenant_from_header(self, request):
+        subdomain = request.headers.get("X-Tenant") or request.META.get("HTTP_X_TENANT")
 
         if subdomain:
             return Tenant.objects.filter(subdomain=subdomain, is_active=True).first()

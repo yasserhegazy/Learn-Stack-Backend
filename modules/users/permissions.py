@@ -16,10 +16,11 @@ class IsTenantMember(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
 
-        if not hasattr(request, "tenant"):
+        tenant = getattr(request, "tenant", None)
+        if tenant is None:
             return False
 
-        return request.user.tenant_id == request.tenant.id
+        return request.user.tenant_id == tenant.id
 
 
 class IsAdminRole(permissions.BasePermission):
@@ -29,11 +30,12 @@ class IsAdminRole(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
 
-        if not hasattr(request, "tenant"):
+        tenant = getattr(request, "tenant", None)
+        if tenant is None:
             return False
 
         return UserRole.objects.filter(
-            user=request.user, tenant=request.tenant, role__name="admin"
+            user=request.user, tenant=tenant, role__name="admin"
         ).exists()
 
 
@@ -44,12 +46,13 @@ class IsInstructorOrAdmin(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
 
-        if not hasattr(request, "tenant"):
+        tenant = getattr(request, "tenant", None)
+        if tenant is None:
             return False
 
         return UserRole.objects.filter(
             user=request.user,
-            tenant=request.tenant,
+            tenant=tenant,
             role__name__in=["admin", "instructor"],
         ).exists()
 
@@ -69,11 +72,12 @@ class IsOwnerOrAdmin(permissions.BasePermission):
         if is_owner:
             return True
 
-        if not hasattr(request, "tenant"):
+        tenant = getattr(request, "tenant", None)
+        if tenant is None:
             return False
 
         return UserRole.objects.filter(
-            user=request.user, tenant=request.tenant, role__name="admin"
+            user=request.user, tenant=tenant, role__name="admin"
         ).exists()
 
 
@@ -84,11 +88,12 @@ class CanManageUsers(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
 
-        if not hasattr(request, "tenant"):
+        tenant = getattr(request, "tenant", None)
+        if tenant is None:
             return False
 
         user_roles = UserRole.objects.filter(
-            user=request.user, tenant=request.tenant
+            user=request.user, tenant=tenant
         ).select_related("role")
 
         for user_role in user_roles:
@@ -105,11 +110,12 @@ class CanManageRoles(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
 
-        if not hasattr(request, "tenant"):
+        tenant = getattr(request, "tenant", None)
+        if tenant is None:
             return False
 
         user_roles = UserRole.objects.filter(
-            user=request.user, tenant=request.tenant
+            user=request.user, tenant=tenant
         ).select_related("role")
 
         for user_role in user_roles:
